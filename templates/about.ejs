@@ -1,0 +1,134 @@
+<!-- 页面标题 -->
+<section class="hero" style="padding: 100px 0 60px;">
+  <div class="container">
+    <div class="hero-content" style="text-align: center;">
+      <h1>关于我们</h1>
+      <p>了解 <%= name %> 的发展历程和企业文化</p>
+    </div>
+  </div>
+</section>
+
+<!-- 企业介绍 -->
+<section class="section">
+  <div class="container">
+    <div class="about-content">
+      <div class="about-text">
+        <h3>企业简介</h3>
+        <% if (typeof description !== 'undefined') { %>
+          <% const paragraphs = description.split('\n').filter(p => p.trim()); %>
+          <% paragraphs.forEach(para => { %>
+            <p><%= para.trim() %></p>
+          <% }); %>
+        <% } else { %>
+          <p><%= name %>是一家专注于技术创新和行业解决方案的领先企业。公司致力于为客户提供高质量的产品和专业的服务，在行业内享有良好的声誉。</p>
+          <p>我们始终坚持"以客户为中心，以创新为驱动"的经营理念，不断追求卓越，为客户创造更大的价值。</p>
+          <p>经过多年的发展，公司已经建立了完善的服务体系，拥有一支高素质的专业团队，能够为客户提供全方位的支持。</p>
+        <% } %>
+        
+        <% if (typeof founded !== 'undefined' || typeof headquarters !== 'undefined' || typeof industry !== 'undefined') { %>
+          <div style="margin-top: 30px; padding: 20px; background: #f3f4f6; border-radius: 8px;">
+            <% if (typeof founded !== 'undefined') { %>
+              <p style="margin-bottom: 10px;"><strong>成立时间：</strong><%= founded %></p>
+            <% } %>
+            <% if (typeof headquarters !== 'undefined') { %>
+              <p style="margin-bottom: 10px;"><strong>总部地点：</strong><%= headquarters %></p>
+            <% } %>
+            <% if (typeof industry !== 'undefined') { %>
+              <p><strong>所属行业：</strong><%= industry %></p>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+      <div class="about-image">🏢</div>
+    </div>
+  </div>
+</section>
+
+<!-- 企业数据 -->
+<section class="section bg-light">
+  <div class="container">
+    <div class="section-header">
+      <h2>企业实力</h2>
+      <p>数字见证我们的成长与成就</p>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number" data-target="20">0</div>
+        <div class="stat-label">年行业经验</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" data-target="500">0</div>
+        <div class="stat-label">服务客户</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" data-target="100">0</div>
+        <div class="stat-label">专业团队</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 企业优势 -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>我们的优势</h2>
+      <p>核心竞争力，为您创造独特价值</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🏆</div>
+        <h3>行业领先</h3>
+        <p>深耕行业多年，积累了丰富的经验和专业知识，始终走在行业前沿。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <h3>专业团队</h3>
+        <p>汇聚行业精英，团队成员均具备多年从业经验和专业技能。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>品质保障</h3>
+        <p>严格的质量管理体系，确保每个项目都能达到最高标准。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤝</div>
+        <h3>贴心服务</h3>
+        <p>7x24小时客户服务，及时响应您的需求，解决您的问题。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 发展历程 -->
+<section class="section bg-light">
+  <div class="container">
+    <div class="section-header">
+      <h2>发展历程</h2>
+      <p>一步一个脚印，稳健前行</p>
+    </div>
+    <div style="max-width: 800px; margin: 0 auto;">
+      <% const milestones = [
+        { year: '2000', title: '公司成立', desc: '在创新之路上迈出第一步' },
+        { year: '2005', title: '业务拓展', desc: '服务范围扩展至全国主要城市' },
+        { year: '2010', title: '技术突破', desc: '获得多项核心技术专利' },
+        { year: '2015', title: '规模扩张', desc: '团队规模突破500人' },
+        { year: '2020', title: '战略升级', desc: '完成数字化转型，开启新篇章' },
+        { year: '至今', title: '持续创新', desc: '不断追求卓越，引领行业发展' }
+      ]; %>
+      <% milestones.forEach((milestone, index) => { %>
+        <div style="display: flex; gap: 30px; margin-bottom: 30px; <%= index % 2 === 1 ? 'flex-direction: row-reverse; text-align: right;' : '' %>">
+          <div style="flex-shrink: 0; width: 100px;">
+            <div style="background: #2563eb; color: white; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold;">
+              <%= milestone.year %>
+            </div>
+          </div>
+          <div style="flex: 1; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h4 style="margin-bottom: 8px;"><%= milestone.title %></h4>
+            <p style="color: #6b7280;"><%= milestone.desc %></p>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</section>

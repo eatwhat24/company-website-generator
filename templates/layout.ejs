@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof pageTitle !== 'undefined' && pageTitle !== '首页' ? pageTitle + ' - ' : '' %><%= name %> - 官方网站</title>
+  <meta name="description" content="<%= typeof business !== 'undefined' ? business : name + '官方网站' %>">
+  <meta name="keywords" content="<%= name %>, <%= typeof industry !== 'undefined' ? industry : '企业' %>, 官方网站">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏢</text></svg>">
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="logo"><%= shortName || name %><span>.</span></a>
+      <button class="mobile-menu-btn" aria-label="菜单">☰</button>
+      <ul class="nav-links">
+        <% const navItems = [
+          { name: 'index', label: '首页' },
+          { name: 'about', label: '关于我们' },
+          { name: 'services', label: '服务与产品' },
+          { name: 'contact', label: '联系我们' }
+        ]; %>
+        <% navItems.forEach(item => { %>
+          <li><a href="<%= item.name === 'index' ? 'index.html' : item.name + '.html' %>" class="<%= currentPage === item.name ? 'active' : '' %>"><%= item.label %></a></li>
+        <% }); %>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- 主要内容 -->
+  <main>
+    <%- body %>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3><%= name %></h3>
+          <p><%= typeof slogan !== 'undefined' ? slogan : '创新引领未来' %></p>
+        </div>
+        <div class="footer-links">
+          <h4>快速链接</h4>
+          <ul>
+            <li><a href="index.html">首页</a></li>
+            <li><a href="about.html">关于我们</a></li>
+            <li><a href="services.html">服务与产品</a></li>
+            <li><a href="contact.html">联系我们</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>联系方式</h4>
+          <ul>
+            <li>电话: <%= typeof contact !== 'undefined' && contact.phone ? contact.phone : '400-123-4567' %></li>
+            <li>邮箱: <%= typeof contact !== 'undefined' && contact.email ? contact.email : 'contact@company.com' %></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>关注我们</h4>
+          <ul>
+            <li><a href="#">微信公众号</a></li>
+            <li><a href="#">新浪微博</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; <%= new Date().getFullYear() %> <%= name %>. All Rights Reserved. | 由企业官网生成器创建</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

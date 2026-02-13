@@ -1,0 +1,161 @@
+<!-- 页面标题 -->
+<section class="hero" style="padding: 100px 0 60px;">
+  <div class="container">
+    <div class="hero-content" style="text-align: center;">
+      <h1>服务与产品</h1>
+      <p>专业的解决方案，助力您的业务腾飞</p>
+    </div>
+  </div>
+</section>
+
+<!-- 服务介绍 -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>我们的服务</h2>
+      <p>提供全方位的专业服务，满足您的多样化需求</p>
+    </div>
+    <div class="services-grid">
+      <% if (typeof services !== 'undefined' && services.length > 0) { %>
+        <% services.forEach((service, index) => { %>
+          <div class="service-card">
+            <div class="service-image"><%= ['⚙️', '☁️', '📊', '🔧', '💻', '📱', '🎯', '🚀'][index % 8] %></div>
+            <div class="service-content">
+              <h3><%= service.name %></h3>
+              <p><%= service.description %></p>
+              <a href="#contact" class="service-link">咨询了解 →</a>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="service-card">
+          <div class="service-image">⚙️</div>
+          <div class="service-content">
+            <h3>智能解决方案</h3>
+            <p>基于人工智能技术的行业解决方案，帮助企业实现数字化转型，提升运营效率。</p>
+            <a href="#contact" class="service-link">咨询了解 →</a>
+          </div>
+        </div>
+        <div class="service-card">
+          <div class="service-image">☁️</div>
+          <div class="service-content">
+            <h3>云计算服务</h3>
+            <p>安全可靠的云计算基础设施，提供弹性计算、存储和网络服务，支持业务快速扩展。</p>
+            <a href="#contact" class="service-link">咨询了解 →</a>
+          </div>
+        </div>
+        <div class="service-card">
+          <div class="service-image">📊</div>
+          <div class="service-content">
+            <h3>数据分析</h3>
+            <p>大数据分析和商业智能服务，深度挖掘数据价值，助力企业数据驱动决策。</p>
+            <a href="#contact" class="service-link">咨询了解 →</a>
+          </div>
+        </div>
+        <div class="service-card">
+          <div class="service-image">🔧</div>
+          <div class="service-content">
+            <h3>技术咨询</h3>
+            <p>专业的技术咨询服务，为企业量身定制信息化解决方案，提供全程技术支持。</p>
+            <a href="#contact" class="service-link">咨询了解 →</a>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- 服务流程 -->
+<section class="section bg-light">
+  <div class="container">
+    <div class="section-header">
+      <h2>服务流程</h2>
+      <p>标准化的服务流程，确保项目高质量交付</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px;">
+      <% const steps = [
+        { num: '01', title: '需求沟通', desc: '深入了解客户需求，制定初步方案' },
+        { num: '02', title: '方案设计', desc: '专业团队量身定制解决方案' },
+        { num: '03', title: '项目执行', desc: '按计划推进，确保质量和进度' },
+        { num: '04', title: '验收交付', desc: '严格测试，确保满足要求' },
+        { num: '05', title: '售后支持', desc: '持续跟进，提供技术支持' }
+      ]; %>
+      <% steps.forEach((step, index) => { %>
+        <div style="text-align: center; position: relative;">
+          <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #2563eb, #1e40af); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 1.5rem; font-weight: bold;">
+            <%= step.num %>
+          </div>
+          <h4 style="margin-bottom: 10px;"><%= step.title %></h4>
+          <p style="color: #6b7280;"><%= step.desc %></p>
+          <% if (index < steps.length - 1) { %>
+            <div style="position: absolute; top: 40px; right: -15px; width: 30px; height: 2px; background: #e5e7eb; display: none;" class="step-arrow"></div>
+          <% } %>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</section>
+
+<!-- 为什么选择我们 -->
+<section class="section">
+  <div class="container">
+    <div class="about-content">
+      <div class="about-text">
+        <h3>专业的服务保障</h3>
+        <p>我们深知每个项目的重要性，因此始终以最高的标准要求自己。从需求分析到方案设计，从项目执行到售后支持，我们都力求做到尽善尽美。</p>
+        <p>选择我们，您将获得：</p>
+        <ul style="list-style: none; padding: 0;">
+          <li style="padding: 10px 0; display: flex; align-items: center; gap: 10px;">
+            <span style="color: #2563eb;">✓</span>
+            <span>专业的技术团队和丰富的项目经验</span>
+          </li>
+          <li style="padding: 10px 0; display: flex; align-items: center; gap: 10px;">
+            <span style="color: #2563eb;">✓</span>
+            <span>量身定制的解决方案，满足个性化需求</span>
+          </li>
+          <li style="padding: 10px 0; display: flex; align-items: center; gap: 10px;">
+            <span style="color: #2563eb;">✓</span>
+            <span>透明的项目管理和定期的进度汇报</span>
+          </li>
+          <li style="padding: 10px 0; display: flex; align-items: center; gap: 10px;">
+            <span style="color: #2563eb;">✓</span>
+            <span>完善的售后服务和长期技术支持</span>
+          </li>
+        </ul>
+      </div>
+      <div class="about-image">💼</div>
+    </div>
+  </div>
+</section>
+
+<!-- 客户评价 -->
+<section class="section bg-light">
+  <div class="container">
+    <div class="section-header">
+      <h2>客户评价</h2>
+      <p>客户的认可，是我们前进的动力</p>
+    </div>
+    <div class="features-grid">
+      <% const testimonials = [
+        { name: '张经理', company: '某科技公司', content: '与合作是一次非常愉快的体验。他们专业、高效，交付的解决方案完全超出了我们的预期。' },
+        { name: '李总', company: '某制造企业', content: '的团队非常专业，从需求分析到项目实施，每个环节都做得非常到位。强烈推荐给有需求的企业！' },
+        { name: '王总监', company: '某金融机构', content: '选择是我们做出的正确决定。他们的服务不仅专业，而且非常贴心，是真正的合作伙伴。' }
+      ]; %>
+      <% testimonials.forEach(t => { %>
+        <div class="feature-card" style="text-align: left;">
+          <div style="color: #f59e0b; font-size: 1.25rem; margin-bottom: 15px;">★★★★★</div>
+          <p style="margin-bottom: 20px; font-style: italic;">"<%= t.content %>"</p>
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="width: 50px; height: 50px; background: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+              <%= t.name[0] %>
+            </div>
+            <div>
+              <div style="font-weight: 600;"><%= t.name %></div>
+              <div style="color: #6b7280; font-size: 0.875rem;"><%= t.company %></div>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,54 @@
+<!-- 结果页面模板 - 用于 Web 界面显示生成结果 -->
+<% if (result) { %>
+  <section class="section" style="padding-top: 120px; background: #f3f4f6; min-height: 100vh;">
+    <div class="container">
+      <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <div style="width: 80px; height: 80px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem;">✓</div>
+          <h1 style="color: #10b981;">生成成功！</h1>
+          <p style="color: #6b7280;"><%= result.companyName %> 的企业官网已生成完成</p>
+        </div>
+        
+        <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+          <h3 style="margin-bottom: 15px;">企业信息</h3>
+          <p><strong>企业名称：</strong><%= result.companyName %></p>
+          <p><strong>核心业务：</strong><%= result.companyInfo.business %></p>
+          <p><strong>所属行业：</strong><%= result.companyInfo.industry || '互联网/科技' %></p>
+        </div>
+        
+        <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+          <h3 style="margin-bottom: 15px;">生成的文件</h3>
+          <ul style="list-style: none; padding: 0;">
+            <% result.generatedFiles.forEach(file => { %>
+              <li style="padding: 5px 0; color: #6b7280;">📄 <%= file %></li>
+            <% }); %>
+          </ul>
+        </div>
+        
+        <% if (result.githubUrl) { %>
+          <div style="background: #dbeafe; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+            <h3 style="margin-bottom: 15px; color: #1e40af;">🚀 已部署到 GitHub Pages</h3>
+            <p style="margin-bottom: 10px;">您的网站已自动部署，访问地址：</p>
+            <a href="<%= result.githubUrl %>" target="_blank" style="color: #2563eb; word-break: break-all;"><%= result.githubUrl %></a>
+          </div>
+        <% } %>
+        
+        <div style="text-align: center;">
+          <a href="/" class="btn btn-primary">返回首页</a>
+          <a href="/api/generate" style="margin-left: 10px;" class="btn btn-outline" onclick="event.preventDefault(); window.location.reload();">生成新网站</a>
+        </div>
+      </div>
+    </div>
+  </section>
+<% } else if (error) { %>
+  <section class="section" style="padding-top: 120px; background: #f3f4f6; min-height: 100vh;">
+    <div class="container">
+      <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
+        <div style="width: 80px; height: 80px; background: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; color: white;">✕</div>
+        <h1 style="color: #ef4444;">生成失败</h1>
+        <p style="color: #6b7280; margin: 20px 0;"><%= error %></p>
+        <a href="/" class="btn btn-primary">返回重试</a>
+      </div>
+    </div>
+  </section>
+<% } %>
