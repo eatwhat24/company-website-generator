@@ -20,6 +20,7 @@ export interface CompanyInfo {
 }
 
 export interface GenerateResult {
+  id?: string;
   companyName: string;
   companyInfo: CompanyInfo;
   outputDir: string;
@@ -28,6 +29,12 @@ export interface GenerateResult {
   githubUrl?: string;
   indexUrl?: string;
   previewUrl?: string;
+}
+
+export interface HistoryRecord extends GenerateResult {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ApiResponse<T> {
@@ -89,6 +96,18 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ companyName, deployTarget }),
     });
+  }
+
+  async getHistory(): Promise<ApiResponse<HistoryRecord[]>> {
+    return this.request('/history');
+  }
+
+  async getHistoryRecord(id: string): Promise<ApiResponse<HistoryRecord>> {
+    return this.request(`/history/${id}`);
+  }
+
+  async deleteHistoryRecord(id: string): Promise<ApiResponse<void>> {
+    return this.request(`/history/${id}`, { method: 'DELETE' });
   }
 }
 

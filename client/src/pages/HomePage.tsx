@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Sparkles, Github, ExternalLink, Loader2, CheckCircle2, Building2, Cloud } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Sparkles, Github, ExternalLink, Loader2, CheckCircle2, Building2, Cloud, History, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,10 +7,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { apiClient, GenerateResult, SearchResult } from '@/lib/api';
+import { apiClient, GenerateResult, SearchResult, HistoryRecord } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 
-type Step = 'idle' | 'searching' | 'generating' | 'completed';
+type Step = 'idle' | 'searching' | 'generating' | 'completed' | 'history';
 type DeployTarget = 'none' | 'github' | 'qiniu';
 
 interface HomePageProps {
@@ -25,6 +25,42 @@ export function HomePage({ onResult }: HomePageProps) {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [result, setResult] = useState<GenerateResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<HistoryRecord[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  // 加载历史记录
+  const loadHistory = async () => {
+    setLoadingHistory(true);
+    try {
+      const response = await apiClient.getHistory();
+      if (response.success && response.data) {
+        setHistory(response.data);
+      }
+    } catch (e) {
+      console.error('加载历史失败:', e);
+    }
+    setLoadingHistory(false);
+  };
+
+  // 从历史记录加载
+  const loadFromHistory = (record: HistoryRecord) => {
+    setCompanyName(record.companyName);
+    setDeployTarget(record.deployTarget as DeployTarget);
+    setResult(record);
+    setStep('completed');
+  };
+
+  // 删除历史记录
+  const handleDeleteHistory = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await apiClient.deleteHistoryRecord(id);
+      setHistory(history.filter(h => h.id !== id));
+      toast({ title: '删除成功' });
+    } catch (e) {
+      toast({ title: '删除失败', variant: 'destructive' });
+    }
+  };
 
   const handleSearch = async () => {
     if (!companyName.trim()) {
@@ -97,7 +133,7 @@ export function HomePage({ onResult }: HomePageProps) {
         setResult(response.data);
         toast({
           title: '生成成功',
-          description: deployToGithub ? '官网已生成并部署到 GitHub Pages' : '官网已生成',
+          description: deployTarget !== 'none' ? `官网已生成并部署到${deployTarget === 'github' ? 'GitHub Pages' : '七牛云'}` : '官网已生成',
         });
         onResult?.(response.data);
       } else {
@@ -118,7 +154,7 @@ export function HomePage({ onResult }: HomePageProps) {
 
   const handleReset = () => {
     setCompanyName('');
-    setDeployToGithub(false);
+    setDeployTarget('none');
     setStep('idle');
     setProgress(0);
     setSearchResults([]);
@@ -146,13 +182,25 @@ export function HomePage({ onResult }: HomePageProps) {
           {/* Search Form */}
           <Card className="w-full max-w-lg mx-auto border-2 border-blue-100 dark:border-blue-900">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Search className="w-5 h-5" />
-                开始生成
-              </CardTitle>
-              <CardDescription>
-                输入您想要生成官网的企业名称
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Search className="w-5 h-5" />
+                    开始生成
+                  </CardTitle>
+                  <CardDescription>
+                    输入您想要生成官网的企业名称
+                  </CardDescription>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => { loadHistory(); setStep('history'); }}
+                >
+                  <History className="w-4 h-4 mr-1" />
+                  历史记录
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-2">
@@ -279,6 +327,74 @@ export function HomePage({ onResult }: HomePageProps) {
       );
     }
 
+    // History
+    if (step === 'history') {
+      return (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">历史记录</h2>
+            <Button variant="outline" onClick={() => setStep('idle')}>
+              返回
+            </Button>
+          </div>
+
+          {loadingHistory ? (
+            <div className="text-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto" />
+              <p className="mt-2 text-muted-foreground">加载中...</p>
+            </div>
+          ) : history.length === 0 ? (
+            <Card className="p-8 text-center">
+              <History className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">暂无历史记录</p>
+            </Card>
+          ) : (
+            <div className="grid gap-4">
+              {history.map((record) => (
+                <Card 
+                  key={record.id} 
+                  className="cursor-pointer hover:border-blue-500 transition-colors"
+                  onClick={() => loadFromHistory(record)}
+                >
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-lg">{record.companyName}</CardTitle>
+                    <div className="flex items-center gap-2">
+                      {record.previewUrl && (
+                        <a 
+                          href={record.previewUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-green-600 hover:underline text-sm"
+                        >
+                          预览
+                        </a>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => handleDeleteHistory(record.id, e)}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      {record.companyInfo?.business?.slice(0, 80)}...
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      创建时间：{new Date(record.createdAt).toLocaleString('zh-CN')}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
     if (step === 'generating') {
       return (
         <Card className="w-full max-w-lg mx-auto">
@@ -306,15 +422,20 @@ export function HomePage({ onResult }: HomePageProps) {
                 {progress >= 70 ? <CheckCircle2 className="w-4 h-4" /> : <Loader2 className="w-4 h-4 animate-spin" />}
                 生成企业官网
               </div>
-              {deployToGithub ? (
+              {deployTarget === 'github' ? (
                 <div className={`flex items-center gap-2 ${progress >= 100 ? 'text-green-600' : 'text-muted-foreground'}`}>
                   {progress >= 100 ? <CheckCircle2 className="w-4 h-4" /> : <Loader2 className="w-4 h-4 animate-spin" />}
                   部署到 GitHub Pages
                 </div>
+              ) : deployTarget === 'qiniu' ? (
+                <div className={`flex items-center gap-2 ${progress >= 100 ? 'text-green-600' : 'text-muted-foreground'}`}>
+                  {progress >= 100 ? <CheckCircle2 className="w-4 h-4" /> : <Loader2 className="w-4 h-4 animate-spin" />}
+                  部署到七牛云
+                </div>
               ) : (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <span className="w-4 h-4" />
-                  跳过 GitHub 部署
+                  跳过部署
                 </div>
               )}
             </div>
@@ -360,7 +481,19 @@ export function HomePage({ onResult }: HomePageProps) {
                     className="flex items-center gap-2 text-blue-600 hover:underline"
                   >
                     <ExternalLink className="w-4 h-4" />
-                    查看在线官网
+                    GitHub Pages 在线预览
+                  </a>
+                )}
+
+                {result.previewUrl && (
+                  <a
+                    href={result.previewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-green-600 hover:underline"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    七牛云预览地址
                   </a>
                 )}
               </div>

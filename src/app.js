@@ -43,23 +43,19 @@ app.get('/preview/:path(*)', async (req, res) => {
   try {
     const previewPath = req.params.path;
     const config = qiniuService.getQiniuConfig();
+    const qiniu = require('qiniu');
     
     // 构建七牛云文件路径
     const fileKey = previewPath;
     
     // 获取私有下载链接
-    const mac = new (require('qiniu').auth.digest.Mac)(config.accessKey, config.secretKey);
-    const configQiniu = new (require('qiniu').conf.Config());
-    configQiniu.zone = require('qiniu').zone[config.zone];
-    
-    const bucketManager = new (require('qiniu').rs.BucketManager)(mac, configQiniu);
+    const mac = new qiniu.auth.digest.Mac(config.accessKey, config.secretKey);
+    const bucketManager = new qiniu.rs.BucketManager(mac);
     
     // 生成私有访问链接（有效期1小时）
     const deadline = Math.floor(Date.now() / 1000) + 3600;
-    const privateUrl = bucketManager.privateDownloadUrl(
-      `http://${config.bucket}.${config.zone}.qiniucs.com/${fileKey}`,
-      deadline
-    );
+    const publicUrl = `http://${config.bucket}.${config.zone}.qiniucs.com/${fileKey}`;
+    const privateUrl = bucketManager.privateDownloadUrl(publicUrl, deadline);
     
     // 重定向到私有链接
     res.redirect(privateUrl);

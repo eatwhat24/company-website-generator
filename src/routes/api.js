@@ -11,6 +11,7 @@ const extractorService = require('../services/extractor');
 const generatorService = require('../services/generator');
 const githubService = require('../services/github');
 const qiniuService = require('../services/qiniu');
+const historyService = require('../services/history');
 
 /**
  * 健康检查
@@ -69,7 +70,7 @@ router.post('/search', async (req, res) => {
  */
 router.post('/generate', async (req, res) => {
   try {
-    const { companyName, deployTarget = 'none' } = req.body;
+    const { companyName, deployTarget = 'none', forceRegenerate = false } = req.body;
     
     if (!companyName || typeof companyName !== 'string') {
       return res.status(400).json({
@@ -79,9 +80,35 @@ router.post('/generate', async (req, res) => {
     }
     
     console.log(`\n========================================`);
-    console.log(`🚀 开始生成企业官网: ${companyName}`);
-    console.log(`📦 部署目标: ${deployTarget}`);
+    console.log(`🚀 开始处理: ${companyName}`);
+    console.log(`📦 部署目标: ${deployTarget}, 强制重生成: ${forceRegenerate}`);
     console.log(`========================================\n`);
+    
+    // 检查是否已存在（仅针对七牛云）
+    if (!forceRegenerate && deployTarget === 'qiniu') {
+      const existingHistory = await historyService.getHistory();
+      const existing = existingHistory.find(h => 
+        h.companyName === companyName && h.deployTarget === 'qiniu'
+      );
+      
+      if (existing && existing.previewUrl) {
+        console.log(`   ✅ 企业已存在，返回已有预览链接`);
+        return res.json({
+          success: true,
+          message: '企业官网已存在',
+          data: {
+            id: existing.id,
+            companyName: existing.companyName,
+            companyInfo: existing.companyInfo,
+            deployTarget: existing.deployTarget,
+            previewUrl: existing.previewUrl,
+            indexUrl: existing.indexUrl,
+            qiniuDir: existing.qiniuDir,
+            isExisting: true
+          }
+        });
+      }
+    }
     
     // 步骤 1: 搜索企业信息
     console.log('📡 步骤 1/4: 搜索企业网络信息...');
@@ -119,15 +146,30 @@ router.post('/generate', async (req, res) => {
     console.log(`✅ 企业官网生成成功!`);
     console.log(`========================================\n`);
     
+    // 保存到历史记录
+    const recordId = Date.now().toString();
+    await historyService.saveRecord({
+      id: recordId,
+      companyName: companyInfo.name,
+      companyInfo,
+      deployTarget,
+      previewUrl: deployResult?.previewUrl,
+      indexUrl: deployResult?.indexUrl,
+      qiniuDir: deployResult?.dirName
+    });
+    
     res.json({
       success: true,
       message: '企业官网生成成功',
       data: {
+        id: recordId,
         companyName: companyInfo.name,
         companyInfo,
         outputDir,
         generatedFiles: generatorService.getGeneratedFiles(outputDir),
         deployTarget,
+        previewUrl: deployResult?.previewUrl,
+        indexUrl: deployResult?.indexUrl,
         ...deployResult
       }
     });
@@ -172,6 +214,84 @@ router.post('/generate-web', async (req, res) => {
       title: '企业官网生成器',
       companyName: req.body.companyName || '',
       result: null,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * 获取历史记录列表
+ * GET /api/history
+ */
+router.get('/history', async (req, res) => {
+  try {
+    const history = await historyService.getHistory();
+    res.json({
+      success: true,
+      data: history
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: '获取历史记录失败',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * 获取单条历史记录
+ * GET /api/history/:id
+ */
+router.get('/history/:id', async (req, res) => {
+  try {
+    const record = await historyService.getRecord(req.params.id);
+    if (!record) {
+      return res.status(404).json({
+        success: false,
+        message: '记录不存在'
+      });
+    }
+    res.json({
+      success: true,
+      data: record
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: '获取记录失败',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * 删除历史记录
+ * DELETE /api/history/:id
+ */
+router.delete('/history/:id', async (req, res) => {
+  try {
+    const record = await historyService.getRecord(req.params.id);
+    
+    // 如果是七牛云部署，删除七牛云上的文件
+    if (record && record.deployTarget === 'qiniu' && record.qiniuDir) {
+      try {
+        await qiniuService.deleteFromQiniu(record.qiniuDir);
+        console.log(`   🗑️ 已删除七牛云文件: ${record.qiniuDir}`);
+      } catch (e) {
+        console.error('   ⚠️ 删除七牛云文件失败:', e.message);
+      }
+    }
+    
+    await historyService.deleteRecord(req.params.id);
+    res.json({
+      success: true,
+      message: '删除成功'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: '删除失败',
       error: error.message
     });
   }
