@@ -62,8 +62,8 @@ async function deployToQiniu(sourceDir, companyInfo) {
   qiniuConfig.zone = qiniu.zone[config.zone];
   
   // 创建上传客户端
-  const formUploader = new qiniu.formUploader.FormUploader(qiniuConfig);
-  const putExtra = new qiniu.formUploader.PutExtra();
+  const formUploader = new qiniu.form_up.FormUploader(qiniuConfig);
+  const putExtra = new qiniu.form_up.PutExtra();
   
   // 递归读取目录
   const files = await readDirRecursive(sourceDir, sourceDir);
