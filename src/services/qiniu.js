@@ -109,9 +109,10 @@ async function deployToQiniu(sourceDir, companyInfo) {
   // 构建访问链接
   // 使用默认域名，最终访问时再替换
   const defaultDomain = `${config.bucket}.${config.zone}.qiniucs.com`;
+  const dirNameWithPrefix = `company-websites/${dirName}`;
   const baseUrl = config.domain 
-    ? `https://${config.domain}/${dirName}`
-    : `https://${defaultDomain}/${dirName}`;
+    ? `https://${config.domain}/${dirNameWithPrefix}`
+    : `https://${defaultDomain}/${dirNameWithPrefix}`;
   
   // 生成私有签名 URL（始终用默认域名生成）
   const authMac = new qiniu.auth.digest.Mac(config.accessKey, config.secretKey);
@@ -119,8 +120,8 @@ async function deployToQiniu(sourceDir, companyInfo) {
   const deadline = Math.floor(Date.now() / 1000) + 3600 * 24 * 365; // 1年有效期
   
   // 用默认域名生成签名URL
-  const originUrl = `http://${defaultDomain}/${dirName}/index.html`;
-  const signedUrl = bucketManager.privateDownloadUrl(originUrl, deadline);
+  const originUrl = `http://${defaultDomain}/${dirNameWithPrefix}/index.html`;
+  const signedUrl = bucketManager.privateDownloadUrl(defaultDomain, `${dirNameWithPrefix}/index.html`, deadline);
   
   // 替换为自定义域名（如果有）
   let indexUrl = signedUrl;
@@ -128,7 +129,7 @@ async function deployToQiniu(sourceDir, companyInfo) {
     indexUrl = signedUrl.replace(defaultDomain, config.domain);
   }
   
-  // 服务器预览地址
+  // 服务器预览地址（不加前缀，保持简洁）
   const serverUrl = process.env.SERVER_URL || 'http://localhost:3000';
   const previewUrl = `${serverUrl}/preview/${dirName}/`;
   

@@ -37,41 +37,67 @@ ensureDir(outputDir);
 // 路由
 app.use('/api', apiRoutes);
 
-// 预览代理 - 手动生成签名URL
-// 格式: /preview/企业名-hash/index.html
+// 预览代理 - 服务器下载七牛云文件后返回给用户
+// 格式: /preview/企业名-hash 或 /preview/企业名-hash/index.html
 app.get('/preview/:path(*)', async (req, res) => {
   try {
-    const previewPath = req.params.path;
+    let previewPath = req.params.path;
     const config = qiniuService.getQiniuConfig();
+    const qiniu = require('qiniu');
+    const http = require('http');
+    const https = require('https');
     
-    // 使用默认域名
-    const defaultDomain = `${config.bucket}.${config.zone}.qiniucs.com`;
-    const fileKey = previewPath;
+    // 七牛云路径添加统一前缀
+    const qiniuPath = `company-websites/${previewPath}`;
+    
+    // 如果路径不以 /index.html 结尾，自动添加
+    const fileKey = qiniuPath.endsWith('/index.html') || qiniuPath.endsWith('.html') 
+      ? qiniuPath 
+      : `${qiniuPath}/index.html`;
+    
+    // 创建认证
+    const mac = new qiniu.auth.digest.Mac(config.accessKey, config.secretKey);
+    
+    // 使用配置的域名
+    const domain = config.domain || `${config.bucket}.${config.zone}.qiniucs.com`;
+    
+    // 生成私有URL
     const deadline = Math.floor(Date.now() / 1000) + 3600;
+    const bucketManager = new qiniu.rs.BucketManager(mac);
+    const signedUrl = bucketManager.privateDownloadUrl(domain, fileKey, deadline);
     
-    // 手动生成签名（HMAC-SHA1）
-    const pathAndQuery = `/${fileKey}?e=${deadline}`;
-    const crypto = require('crypto');
-    const hmac = crypto.createHmac('sha1', config.secretKey);
-    hmac.update(pathAndQuery);
-    const signature = hmac.digest('base64');
-    const encodedSig = signature.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    console.log('Downloading:', signedUrl);
     
-    // 拼接URL
-    let signedUrl = `http://${defaultDomain}/${fileKey}?e=${deadline}&token=${config.accessKey}:${encodedSig}`;
+    // 下载文件
+    const client = signedUrl.startsWith('https') ? https : http;
     
-    // 替换域名
-    if (config.domain) {
-      signedUrl = signedUrl.replace(defaultDomain, config.domain);
-    }
-    
-    console.log('Signed URL:', signedUrl);
-    
-    // 返回可访问的URL
-    res.json({
-      success: true,
-      url: signedUrl,
-      message: '直接访问此链接即可预览'
+    await new Promise((resolve, reject) => {
+      client.get(signedUrl, (response) => {
+        if (response.statusCode === 401) {
+          res.status(401).json({ error: '401 Unauthorized', url: signedUrl });
+          return resolve();
+        }
+        
+        // 设置响应头
+        const contentType = response.headers['content-type'] || '';
+        if (contentType.includes('html')) {
+          res.set('Content-Type', 'text/html; charset=utf-8');
+        } else if (contentType.includes('css')) {
+          res.set('Content-Type', 'text/css; charset=utf-8');
+        } else if (contentType.includes('javascript')) {
+          res.set('Content-Type', 'application/javascript; charset=utf-8');
+        } else if (contentType.includes('json')) {
+          res.set('Content-Type', 'application/json; charset=utf-8');
+        } else if (contentType.includes('image')) {
+          res.set('Content-Type', contentType);
+        } else {
+          res.set('Content-Type', 'text/plain; charset=utf-8');
+        }
+        
+        // 直接 pipe 文件流到响应
+        response.pipe(res);
+        response.on('end', resolve);
+      }).on('error', reject);
     });
   } catch (error) {
     console.error('预览失败:', error);
