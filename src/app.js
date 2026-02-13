@@ -37,28 +37,42 @@ ensureDir(outputDir);
 // 路由
 app.use('/api', apiRoutes);
 
-// 预览代理 - 通过七牛云私有链访问
-// 格式: /preview/企业名-随机码 或 /preview/企业名-随机码/index.html
+// 预览代理 - 手动生成签名URL
+// 格式: /preview/企业名-hash/index.html
 app.get('/preview/:path(*)', async (req, res) => {
   try {
     const previewPath = req.params.path;
     const config = qiniuService.getQiniuConfig();
-    const qiniu = require('qiniu');
     
-    // 构建七牛云文件路径
+    // 使用默认域名
+    const defaultDomain = `${config.bucket}.${config.zone}.qiniucs.com`;
     const fileKey = previewPath;
-    
-    // 获取私有下载链接
-    const mac = new qiniu.auth.digest.Mac(config.accessKey, config.secretKey);
-    const bucketManager = new qiniu.rs.BucketManager(mac);
-    
-    // 生成私有访问链接（有效期1小时）
     const deadline = Math.floor(Date.now() / 1000) + 3600;
-    const publicUrl = `http://${config.bucket}.${config.zone}.qiniucs.com/${fileKey}`;
-    const privateUrl = bucketManager.privateDownloadUrl(publicUrl, deadline);
     
-    // 重定向到私有链接
-    res.redirect(privateUrl);
+    // 手动生成签名（HMAC-SHA1）
+    const pathAndQuery = `/${fileKey}?e=${deadline}`;
+    const crypto = require('crypto');
+    const hmac = crypto.createHmac('sha1', config.secretKey);
+    hmac.update(pathAndQuery);
+    const signature = hmac.digest('base64');
+    const encodedSig = signature.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    
+    // 拼接URL
+    let signedUrl = `http://${defaultDomain}/${fileKey}?e=${deadline}&token=${config.accessKey}:${encodedSig}`;
+    
+    // 替换域名
+    if (config.domain) {
+      signedUrl = signedUrl.replace(defaultDomain, config.domain);
+    }
+    
+    console.log('Signed URL:', signedUrl);
+    
+    // 返回可访问的URL
+    res.json({
+      success: true,
+      url: signedUrl,
+      message: '直接访问此链接即可预览'
+    });
   } catch (error) {
     console.error('预览失败:', error);
     res.status(500).json({ error: '预览失败: ' + error.message });

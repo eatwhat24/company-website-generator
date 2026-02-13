@@ -107,18 +107,33 @@ async function deployToQiniu(sourceDir, companyInfo) {
   }
   
   // 构建访问链接
+  // 使用默认域名，最终访问时再替换
+  const defaultDomain = `${config.bucket}.${config.zone}.qiniucs.com`;
   const baseUrl = config.domain 
     ? `https://${config.domain}/${dirName}`
-    : `https://${config.bucket}.${config.zone}.qiniucs.com/${dirName}`;
+    : `https://${defaultDomain}/${dirName}`;
   
-  const indexUrl = `${baseUrl}/index.html`;
+  // 生成私有签名 URL（始终用默认域名生成）
+  const authMac = new qiniu.auth.digest.Mac(config.accessKey, config.secretKey);
+  const bucketManager = new qiniu.rs.BucketManager(authMac);
+  const deadline = Math.floor(Date.now() / 1000) + 3600 * 24 * 365; // 1年有效期
   
-  // 使用环境变量中的服务器地址，或默认使用 localhost
+  // 用默认域名生成签名URL
+  const originUrl = `http://${defaultDomain}/${dirName}/index.html`;
+  const signedUrl = bucketManager.privateDownloadUrl(originUrl, deadline);
+  
+  // 替换为自定义域名（如果有）
+  let indexUrl = signedUrl;
+  if (config.domain) {
+    indexUrl = signedUrl.replace(defaultDomain, config.domain);
+  }
+  
+  // 服务器预览地址
   const serverUrl = process.env.SERVER_URL || 'http://localhost:3000';
   const previewUrl = `${serverUrl}/preview/${dirName}/`;
   
   console.log(`   ✅ 上传完成！`);
-  console.log(`   🔗 访问地址: ${indexUrl}`);
+  console.log(`   🔗 公开访问地址: ${indexUrl}`);
   console.log(`   🔍 预览地址: ${previewUrl}`);
   
   return {
