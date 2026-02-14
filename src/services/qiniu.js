@@ -48,6 +48,8 @@ async function deployToQiniu(sourceDir, companyInfo) {
   // 使用 hash 生成固定目录名
   const hashCode = generateHash(companyInfo.name);
   const dirName = `${companyInfo.name}-${hashCode}`;
+  // 七牛云存储路径添加统一前缀
+  const remoteDirName = `company-websites/${dirName}`;
   
   console.log(`   📦 准备上传到七牛云...`);
   console.log(`   🗂️  目录: ${dirName} (hash: ${hashCode})`);
@@ -80,7 +82,7 @@ async function deployToQiniu(sourceDir, companyInfo) {
   for (const file of files) {
     try {
       const fileBuffer = await fs.readFile(file.path);
-      const remotePath = `${dirName}/${file.relativePath}`;
+      const remotePath = `${remoteDirName}/${file.relativePath}`;
       
       await new Promise((resolve, reject) => {
         formUploader.put(uploadToken, remotePath, fileBuffer, putExtra, 
@@ -119,9 +121,9 @@ async function deployToQiniu(sourceDir, companyInfo) {
   const bucketManager = new qiniu.rs.BucketManager(authMac);
   const deadline = Math.floor(Date.now() / 1000) + 3600 * 24 * 365; // 1年有效期
   
-  // 用默认域名生成签名URL
-  const originUrl = `http://${defaultDomain}/${dirNameWithPrefix}/index.html`;
-  const signedUrl = bucketManager.privateDownloadUrl(defaultDomain, `${dirNameWithPrefix}/index.html`, deadline);
+  // 用默认域名生成签名URL（domain 必须以 http:// 或 https:// 开头）
+  const originUrl = `http://${defaultDomain}/${remoteDirName}/index.html`;
+  const signedUrl = bucketManager.privateDownloadUrl(`http://${defaultDomain}`, `${remoteDirName}/index.html`, deadline);
   
   // 替换为自定义域名（如果有）
   let indexUrl = signedUrl;
@@ -129,9 +131,9 @@ async function deployToQiniu(sourceDir, companyInfo) {
     indexUrl = signedUrl.replace(defaultDomain, config.domain);
   }
   
-  // 服务器预览地址（不加前缀，保持简洁）
+  // 服务器预览地址（带 company-websites 前缀）
   const serverUrl = process.env.SERVER_URL || 'http://localhost:3000';
-  const previewUrl = `${serverUrl}/preview/${dirName}/`;
+  const previewUrl = `${serverUrl}/preview/${remoteDirName}/`;
   
   console.log(`   ✅ 上传完成！`);
   console.log(`   🔗 公开访问地址: ${indexUrl}`);
@@ -140,6 +142,7 @@ async function deployToQiniu(sourceDir, companyInfo) {
   return {
     success: true,
     dirName: dirName,
+    remoteDirName: remoteDirName,
     baseUrl: baseUrl,
     indexUrl: indexUrl,
     previewUrl: previewUrl,

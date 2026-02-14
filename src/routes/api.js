@@ -110,36 +110,31 @@ router.post('/generate', async (req, res) => {
       }
     }
     
-    // 步骤 1: 搜索企业信息
-    console.log('📡 步骤 1/4: 搜索企业网络信息...');
-    const searchResults = await searchService.searchCompany(companyName);
-    console.log(`   ✓ 获取到 ${searchResults.length} 条搜索结果`);
-    
-    // 步骤 2: 使用 DeepSeek 提取关键信息
-    console.log('🤖 步骤 2/4: AI 分析提取关键信息...');
-    const companyInfo = await extractorService.extractCompanyInfo(companyName, searchResults);
-    console.log('   ✓ 企业信息提取完成');
+    // 步骤 1: 使用 MiniMax web_search 获取企业信息
+    console.log('🔍 步骤 1/3: MiniMax AI 搜索企业信息...');
+    const companyInfo = await extractorService.extractCompanyInfo(companyName);
+    console.log('   ✓ 企业信息获取完成');
     console.log(`   - 企业名称: ${companyInfo.name}`);
     console.log(`   - 核心业务: ${companyInfo.business?.slice(0, 50)}...`);
     
-    // 步骤 3: 生成网站
-    console.log('🎨 步骤 3/4: 生成企业官网...');
+    // 步骤 2: 生成网站
+    console.log('🎨 步骤 2/3: 生成企业官网...');
     const outputDir = await generatorService.generateWebsite(companyInfo);
     console.log(`   ✓ 网站生成完成: ${outputDir}`);
     
-    // 步骤 4: 部署
+    // 步骤 3: 部署
     let deployResult = null;
     
     if (deployTarget === 'github') {
-      console.log('🚀 步骤 4/4: 部署到 GitHub Pages...');
+      console.log('🚀 步骤 3/3: 部署到 GitHub Pages...');
       deployResult = await githubService.deployToGithub(outputDir, companyInfo);
       console.log(`   ✓ GitHub 部署完成: ${deployResult.url}`);
     } else if (deployTarget === 'qiniu') {
-      console.log('☁️ 步骤 4/4: 部署到七牛云...');
+      console.log('☁️ 步骤 3/3: 部署到七牛云...');
       deployResult = await qiniuService.deployToQiniu(outputDir, companyInfo);
       console.log(`   ✓ 七牛云部署完成: ${deployResult.indexUrl}`);
     } else {
-      console.log('⏭️  步骤 4/4: 跳过部署');
+      console.log('⏭️  步骤 3/3: 跳过部署');
     }
     
     console.log(`\n========================================`);

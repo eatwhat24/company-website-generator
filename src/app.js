@@ -41,30 +41,35 @@ app.use('/api', apiRoutes);
 // 格式: /preview/企业名-hash 或 /preview/企业名-hash/index.html
 app.get('/preview/:path(*)', async (req, res) => {
   try {
-    let previewPath = req.params.path;
+    // 预览路径已包含 company-websites 前缀，直接使用
+    // 去除末尾的斜杠，避免双斜杠问题
+    let previewPath = req.params.path.replace(/\/$/, '');
     const config = qiniuService.getQiniuConfig();
     const qiniu = require('qiniu');
     const http = require('http');
     const https = require('https');
     
-    // 七牛云路径添加统一前缀
-    const qiniuPath = `company-websites/${previewPath}`;
-    
-    // 如果路径不以 /index.html 结尾，自动添加
-    const fileKey = qiniuPath.endsWith('/index.html') || qiniuPath.endsWith('.html') 
-      ? qiniuPath 
-      : `${qiniuPath}/index.html`;
+    // 只有以 / 结尾或没有任何扩展名的路径才添加 index.html
+    // 这样 css/js/images 等资源不会被错误地添加 index.html
+    let fileKey = previewPath;
+    if (!previewPath.includes('.') || previewPath.endsWith('/')) {
+      // 没有扩展名或以斜杠结尾，添加 index.html
+      fileKey = previewPath.endsWith('/') 
+        ? previewPath + 'index.html' 
+        : previewPath + '/index.html';
+    }
     
     // 创建认证
     const mac = new qiniu.auth.digest.Mac(config.accessKey, config.secretKey);
     
-    // 使用配置的域名
+    // 使用配置的域名（需要加 http:// 前缀）
     const domain = config.domain || `${config.bucket}.${config.zone}.qiniucs.com`;
+    const domainWithProtocol = domain.startsWith('http') ? domain : `http://${domain}`;
     
-    // 生成私有URL
+    // 生成私有URL（domain 必须以 http:// 或 https:// 开头）
     const deadline = Math.floor(Date.now() / 1000) + 3600;
     const bucketManager = new qiniu.rs.BucketManager(mac);
-    const signedUrl = bucketManager.privateDownloadUrl(domain, fileKey, deadline);
+    const signedUrl = bucketManager.privateDownloadUrl(domainWithProtocol, fileKey, deadline);
     
     console.log('Downloading:', signedUrl);
     
@@ -78,18 +83,26 @@ app.get('/preview/:path(*)', async (req, res) => {
           return resolve();
         }
         
-        // 设置响应头
-        const contentType = response.headers['content-type'] || '';
-        if (contentType.includes('html')) {
+        // 设置响应头 - 根据文件扩展名判断 Content-Type
+        const ext = fileKey.split('.').pop().toLowerCase();
+        if (ext === 'html' || ext === 'htm') {
           res.set('Content-Type', 'text/html; charset=utf-8');
-        } else if (contentType.includes('css')) {
+        } else if (ext === 'css') {
           res.set('Content-Type', 'text/css; charset=utf-8');
-        } else if (contentType.includes('javascript')) {
+        } else if (ext === 'js') {
           res.set('Content-Type', 'application/javascript; charset=utf-8');
-        } else if (contentType.includes('json')) {
+        } else if (ext === 'json') {
           res.set('Content-Type', 'application/json; charset=utf-8');
-        } else if (contentType.includes('image')) {
-          res.set('Content-Type', contentType);
+        } else if (ext === 'png') {
+          res.set('Content-Type', 'image/png');
+        } else if (ext === 'jpg' || ext === 'jpeg') {
+          res.set('Content-Type', 'image/jpeg');
+        } else if (ext === 'gif') {
+          res.set('Content-Type', 'image/gif');
+        } else if (ext === 'svg') {
+          res.set('Content-Type', 'image/svg+xml');
+        } else if (ext === 'ico') {
+          res.set('Content-Type', 'image/x-icon');
         } else {
           res.set('Content-Type', 'text/plain; charset=utf-8');
         }

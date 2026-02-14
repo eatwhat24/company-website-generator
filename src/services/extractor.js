@@ -1,119 +1,81 @@
 /**
- * DeepSeek AI 信息提取服务
- * 使用 DeepSeek API 从搜索结果中提取企业关键信息
+ * MiniMax AI 信息提取服务
+ * 使用 MiniMax API 的 web_search 能力获取企业信息
  */
 
 const axios = require('axios');
 
-// DeepSeek API 配置
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
-const DEEPSEEK_API_URL = process.env.DEEPSEEK_API_URL || 'https://api.deepseek.com/v1/chat/completions';
+// MiniMax API 配置
+const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY;
+const MINIMAX_API_URL = process.env.MINIMAX_API_URL || 'https://api.minimax.chat/v1';
 
 /**
- * 使用 DeepSeek 提取企业信息
+ * 使用 MiniMax web_search 获取企业信息
  * @param {string} companyName - 企业名称
- * @param {Array} searchResults - 搜索结果列表
  * @returns {Promise<Object>} 提取的企业信息
  */
-async function extractCompanyInfo(companyName, searchResults) {
-  if (!DEEPSEEK_API_KEY) {
-    console.warn('⚠️  未配置 DeepSeek API Key，使用模拟数据');
+async function extractCompanyInfo(companyName) {
+  if (!MINIMAX_API_KEY) {
+    console.warn('⚠️  未配置 MiniMax API Key，使用模拟数据');
     return generateMockCompanyInfo(companyName);
   }
-  
+
   try {
-    // 构建搜索内容摘要
-    const searchContent = searchResults
-      .map((result, index) => `
-[结果 ${index + 1}]
-标题: ${result.title}
-链接: ${result.url}
-摘要: ${result.snippet}
-`)
-      .join('\n');
+    console.log('🔍 使用 MiniMax web_search 获取企业信息...');
     
-    // 构建提示词
-    const prompt = `请根据以下搜索结果，提取关于"${companyName}"企业的关键信息。
-
-搜索结果：
-${searchContent}
-
-请提取并返回以下信息（JSON格式）：
-{
-  "name": "企业全称",
-  "shortName": "企业简称",
-  "slogan": "企业口号/标语",
-  "business": "核心业务描述（100字左右）",
-  "description": "企业详细介绍（300字左右）",
-  "industry": "所属行业",
-  "founded": "成立时间",
-  "headquarters": "总部地点",
-  "services": [
-    {"name": "服务/产品名称", "description": "服务描述"}
-  ],
-  "features": ["企业特色1", "企业特色2", "企业特色3"],
-  "contact": {
-    "phone": "联系电话（模拟）",
-    "email": "联系邮箱（模拟）",
-    "address": "办公地址（模拟）"
-  },
-  "social": {
-    "website": "官方网站",
-    "weibo": "微博链接（如有）",
-    "wechat": "微信公众号（如有）"
-  }
-}
-
-注意：
-1. 如果搜索信息不足，请根据企业名称合理推测填充
-2. 所有字段不能为空
-3. services 至少包含 3 个服务
-4. features 至少包含 3 个特色
-5. 只返回 JSON 格式，不要添加其他说明文字`;
-
-    // 调用 DeepSeek API
+    // 调用 MiniMax API，使用 web_search 工具
     const response = await axios.post(
-      DEEPSEEK_API_URL,
+      `${MINIMAX_API_URL}/text/chatcompletion_v2`,
       {
-        model: 'deepseek-chat',
+        model: 'MiniMax-M2.5',
         messages: [
           {
             role: 'system',
-            content: '你是一个专业的企业信息分析师，擅长从搜索结果中提取和整理企业信息。请只返回 JSON 格式的结果。'
+            content: '你是一个专业的企业信息分析师，擅长通过搜索获取企业信息。请尽可能详细地搜索和整理企业信息。'
           },
           {
             role: 'user',
-            content: prompt
+            content: `请搜索并整理关于"${companyName}"企业的详细信息，包括：\n\n1. 企业全称和简称\n2. 企业口号/slogan\n3. 核心业务介绍\n4. 成立时间\n5. 总部地点\n6. 行业领域\n7. 主要产品和服务（至少3个）\n8. 企业特色/优势（至少3个）\n9. 官方网站\n10. 联系电话、邮箱、地址等联系信息（如果没有可以标注"待确认"）\n\n请尽可能详细地搜索，提供准确的信息。如果某些信息搜索不到，请标注"待确认"。`
           }
         ],
-        temperature: 0.3,
-        max_tokens: 2000,
-        response_format: { type: 'json_object' }
+        tools: [
+          {
+            type: 'web_search',
+            web_search: {
+              search_engine: 'search',
+              enable: true,
+              reason: '需要搜索获取企业详细信息'
+            }
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 4000
       },
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+          'Authorization': `Bearer ${MINIMAX_API_KEY}`
         },
-        timeout: 60000
+        timeout: 120000
       }
     );
-    
+
     // 解析 AI 返回的内容
-    const aiContent = response.data.choices[0].message.content;
-    let companyInfo;
+    const assistantMessage = response.data.choices?.[0]?.message;
     
-    try {
-      companyInfo = JSON.parse(aiContent);
-    } catch (parseError) {
-      // 尝试从文本中提取 JSON
-      const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        companyInfo = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error('无法解析 AI 返回的 JSON');
-      }
+    if (!assistantMessage) {
+      console.warn('MiniMax 返回格式异常，使用模拟数据');
+      return generateMockCompanyInfo(companyName);
     }
+
+    // 获取思考过程（如果有）和最终回复
+    const thinkingContent = assistantMessage. Reasoning || '';
+    const aiContent = assistantMessage.content;
+
+    console.log('✅ MiniMax web_search 完成');
+
+    // 解析 AI 返回的 JSON
+    let companyInfo = parseCompanyInfo(aiContent, companyName);
     
     // 确保必要字段存在
     const defaultInfo = generateMockCompanyInfo(companyName);
@@ -124,13 +86,14 @@ ${searchContent}
     companyInfo.features = companyInfo.features || defaultInfo.features;
     companyInfo.contact = { ...defaultInfo.contact, ...companyInfo.contact };
     companyInfo.social = { ...defaultInfo.social, ...companyInfo.social };
-    
+
     return companyInfo;
+    
   } catch (error) {
-    console.error('DeepSeek API 调用失败:', error.message);
+    console.error('MiniMax API 调用失败:', error.message);
     
     if (error.response) {
-      console.error('API 错误详情:', error.response.data);
+      console.error('API 错误详情:', JSON.stringify(error.response.data, null, 2));
     }
     
     // 使用模拟数据作为后备
@@ -140,21 +103,125 @@ ${searchContent}
 }
 
 /**
+ * 解析 AI 返回的企业信息
+ * @param {string} content - AI 返回的内容
+ * @param {string} companyName - 企业名称
+ * @returns {Object} 解析后的企业信息
+ */
+function parseCompanyInfo(content, companyName) {
+  try {
+    // 尝试直接解析 JSON
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+    
+    // 如果不是 JSON 格式，手动提取字段
+    const info = {
+      name: companyName,
+      shortName: extractField(content, ['简称', '简称叫', 'shortName']) || companyName.replace(/有限公司|股份有限公司|集团|科技|网络|信息/g, ''),
+      slogan: extractField(content, ['口号', 'slogan', '标语']) || '创新引领未来',
+      business: extractField(content, ['核心业务', '主要业务', 'business']) || '',
+      description: extractField(content, ['介绍', 'description', '详细']) || '',
+      industry: extractField(content, ['行业', 'industry']) || '互联网/科技',
+      founded: extractField(content, ['成立', 'founded', '创建于']) || '待确认',
+      headquarters: extractField(content, ['总部', 'headquarters', '位于']) || '待确认',
+      services: extractArrayField(content, ['服务', '产品', 'services']),
+      features: extractArrayField(content, ['特色', '优势', 'features', '特点']),
+      contact: {
+        phone: extractField(content, ['电话', 'phone', '联系方式']) || '待确认',
+        email: extractField(content, ['邮箱', 'email', '信箱']) || '待确认',
+        address: extractField(content, ['地址', 'address', '办公地点']) || '待确认'
+      },
+      social: {
+        website: extractField(content, ['官网', 'website', '官方网站']) || '',
+        weibo: extractField(content, ['微博']) || '',
+        wechat: extractField(content, ['微信公众号', '微信']) || ''
+      }
+    };
+    
+    return info;
+  } catch (parseError) {
+    console.warn('解析企业信息失败:', parseError.message);
+    return generateMockCompanyInfo(companyName);
+  }
+}
+
+/**
+ * 从文本中提取字段值
+ * @param {string} text - 原始文本
+ * @param {Array} keywords - 关键词列表
+ * @returns {string} 提取的值
+ */
+function extractField(text, keywords) {
+  for (const keyword of keywords) {
+    // 尝试多种匹配模式
+    const patterns = [
+      new RegExp(`${keyword}[：:][\\s]*([^\\n]{2,100})`, 'i'),
+      new RegExp(`${keyword}[^\\u4e00-\\u9fa5]*([^\\n]{2,50})`, 'i'),
+    ];
+    
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match && match[1]) {
+        return match[1].trim();
+      }
+    }
+  }
+  return '';
+}
+
+/**
+ * 从文本中提取数组字段
+ * @param {string} text - 原始文本
+ * @param {Array} keywords - 关键词列表
+ * @returns {Array} 提取的数组
+ */
+function extractArrayField(text, keywords) {
+  const results = [];
+  
+  for (const keyword of keywords) {
+    // 匹配列表项
+    const listPattern = new RegExp(`[\\d、\\.\\-][\\s]*([^\\n]{5,80})`, 'g');
+    let match;
+    while ((match = listPattern.exec(text)) !== null && results.length < 5) {
+      const item = match[1].trim();
+      if (item.length > 3) {
+        results.push({ name: item, description: '' });
+      }
+    }
+    
+    if (results.length >= 3) break;
+  }
+  
+  // 如果提取不到，返回默认值
+  if (results.length < 3) {
+    return [
+      { name: '主营业务一', description: '相关服务描述' },
+      { name: '主营业务二', description: '相关服务描述' },
+      { name: '主营业务三', description: '相关服务描述' }
+    ];
+  }
+  
+  return results;
+}
+
+/**
  * 生成模拟企业信息（用于测试或 API 失败时）
  * @param {string} companyName - 企业名称
  * @returns {Object} 模拟的企业信息
  */
 function generateMockCompanyInfo(companyName) {
   const shortName = companyName.replace(/有限公司|股份有限公司|集团|科技|网络|信息/g, '');
-  
+
   return {
     name: companyName,
     shortName: shortName || companyName,
     slogan: '创新引领未来，科技改变生活',
     business: `${companyName}是一家专注于技术创新和行业解决方案的领先企业。公司致力于为客户提供高质量的产品和专业的服务，在行业内享有良好的声誉。`,
-    description: `${companyName}成立于2000年，总部位于中国北京。作为行业领先的技术企业，我们始终坚持"以客户为中心，以创新为驱动"的经营理念。经过二十多年的发展，公司已经成为集研发、生产、销售、服务于一体的综合性企业集团。
+    description: `${companyName}成立于2000年，总部位于中国北京。作为行业领先的技术企业，我们始终坚持"以客户为中心，以创新为驱动"的经营理念。经过二十多年的发展，公司已经成为集研发，生产、销售、服务于一体的综合性企业集团。
 
-公司拥有一支高素质的专业团队，在人工智能、云计算、大数据等前沿技术领域具有深厚的积累。我们的产品广泛应用于金融、医疗、教育、制造等多个行业，为客户创造价值，推动社会进步。`,
+公司拥有一支高素质的专业团队，在人工智能、云计算，大数据等前沿技术领域具有深厚的积累。我们的产品广泛应用于金融、医疗、教育，制造等多个行业，为客户创造价值，推动社会进步。`,
     industry: '互联网/科技',
     founded: '2000年',
     headquarters: '中国北京',

@@ -1,101 +1,105 @@
 [
   {
-    "id": "1770974981375",
-    "companyName": "上海繇远",
+    "id": "1771032500782",
+    "companyName": "华为技术有限公司",
     "companyInfo": {
-      "name": "上海繇远",
-      "shortName": "繇远",
-      "slogan": "创新驱动，服务卓越",
-      "business": "上海繇远是一家专注于城市发展与科技创新的企业，致力于提供城市智能化解决方案、数据分析服务和战略咨询服务。公司结合上海作为全球金融中心和科技枢纽的优势，为政府、企业和机构提供定制化的城市发展策略和技术支持，助力城市现代化和可持续发展。",
-      "description": "上海繇远是一家立足上海、面向全国的企业，依托上海的经济实力和国际化背景，专注于城市发展、科技创新和数据分析领域。公司成立于2020年，总部位于上海市浦东新区，利用上海作为亚洲重要城市的资源，为客户提供包括城市智能化规划、大数据分析、战略咨询和项目管理在内的综合服务。繇远致力于推动城市数字化转型，通过创新技术提升城市管理效率和生活质量，同时关注可持续发展目标，为城市未来增长提供支持。公司团队由经验丰富的专业人士组成，结合本地洞察和全球视野，确保服务的高质量和实用性。",
-      "industry": "科技服务与咨询",
-      "founded": "2020年",
-      "headquarters": "上海市浦东新区",
+      "name": "华为技术有限公司",
+      "shortName": "华为",
+      "slogan": "构建万物互联的智能世界",
+      "business": "华为是全球领先的信息与通信技术（ICT）解决方案供应商，专注于通信设备、智能手机、云计算、智能终端等领域的研发、生产和销售。核心业务包括电信网络设备、企业解决方案、消费者业务（如手机、平板、手表等）以及云服务，致力于为全球客户提供创新的ICT产品和服务。",
+      "description": "华为技术有限公司是一家民营通信科技公司，于1987年在中国广东省深圳市正式注册成立，总部位于深圳市龙岗区坂田华为基地。作为全球ICT行业的领导者，华为在电信网络、智能终端、云计算等领域拥有广泛布局，产品和服务覆盖170多个国家和地区。公司以创新驱动发展，持续投入研发，在5G、人工智能、鸿蒙操作系统等前沿技术方面取得显著成就。近年来，华为在手机市场表现突出，例如在2026年1月以18.6%的市场份额领跑中国手机市场。同时，华为积极拓展智能穿戴、笔记本电脑、平板电脑等消费电子产品，并面临云服务SDK问题等挑战，展现了其多元化和动态发展的企业形象。",
+      "industry": "信息与通信技术（ICT）",
+      "founded": "1987年",
+      "headquarters": "中国广东省深圳市龙岗区坂田华为基地",
       "services": [
         {
-          "name": "城市智能化解决方案",
-          "description": "提供基于物联网和大数据的城市管理平台，优化交通、能源和公共安全系统。"
+          "name": "智能手机",
+          "description": "提供包括华为Pura系列、Mate系列等高端智能手机，支持天通卫星通话等创新功能，市场份额领先。"
         },
         {
-          "name": "数据分析服务",
-          "description": "利用先进算法处理城市数据，为决策提供洞察，支持经济规划和风险评估。"
+          "name": "智能穿戴设备",
+          "description": "包括华为手表GT系列、手环10等产品，专注于运动健康监测、长续航和时尚设计。"
         },
         {
-          "name": "战略咨询服务",
-          "description": "为政府和企业在城市发展、科技创新和可持续发展方面提供定制化策略建议。"
+          "name": "云计算服务",
+          "description": "提供华为云C++ SDK等云解决方案，支持企业数字化转型，尽管近期面临技术问题反馈。"
+        },
+        {
+          "name": "笔记本电脑和平板电脑",
+          "description": "如华为MateBook Pro鸿蒙AI电脑和MatePad Edge二合一平板，搭载鸿蒙系统，强调便携性和智能办公。"
         }
       ],
       "features": [
-        "依托上海国际化优势",
-        "专注于城市科技应用",
-        "强调数据驱动决策"
+        "全球领先的ICT解决方案供应商",
+        "强大的研发创新能力（如鸿蒙系统、5G技术）",
+        "多元化的消费电子产品线（手机、穿戴、电脑等）"
       ],
       "contact": {
-        "phone": "021-12345678",
-        "email": "contact@shanghaiyaoyuan.com",
-        "address": "上海市浦东新区张江高科技园区"
+        "phone": "400-830-8300",
+        "email": "support@huawei.com",
+        "address": "深圳市龙岗区坂田华为基地"
       },
       "social": {
-        "website": "https://www.shanghaiyaoyuan.com",
-        "weibo": "https://weibo.com/shanghaiyaoyuan",
-        "wechat": "上海繇远官方"
+        "website": "https://www.huawei.com",
+        "weibo": "https://weibo.com/huawei",
+        "wechat": "华为终端"
       }
     },
     "deployTarget": "qiniu",
-    "previewUrl": "http://192.168.1.51:3000/preview/上海繇远-f7bd4278/",
-    "indexUrl": "cdn2.xdbin.com/company-websites/%E4%B8%8A%E6%B5%B7%E7%B9%87%E8%BF%9C-f7bd4278/index.html?e=1802510981&token=8Q3jrgKS68CF4pRz6OKPUd9aXT60J2jXVQkMQCW0:vYYRYsjwkmeJ1zELDTnTXSZCb80=",
-    "qiniuDir": "上海繇远-f7bd4278",
-    "createdAt": "2026-02-13T09:29:41.376Z",
-    "updatedAt": "2026-02-13T09:29:41.377Z"
+    "previewUrl": "http://192.168.0.109:3000/preview/company-websites/华为技术有限公司-fac32a42/",
+    "indexUrl": "http://cdn2.xdbin.com/company-websites/%E5%8D%8E%E4%B8%BA%E6%8A%80%E6%9C%AF%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8-fac32a42/index.html?e=1802568500&token=8Q3jrgKS68CF4pRz6OKPUd9aXT60J2jXVQkMQCW0:prR-yTGDBa-WgwGLKFugCLTDxyE=",
+    "qiniuDir": "华为技术有限公司-fac32a42",
+    "createdAt": "2026-02-14T01:28:20.783Z",
+    "updatedAt": "2026-02-14T01:28:20.783Z"
   },
   {
-    "id": "1770974101966",
-    "companyName": "深圳市腾讯计算机系统有限公司",
+    "id": "1771029560313",
+    "companyName": "许昌市胖东来商贸集团有限公司",
     "companyInfo": {
-      "name": "深圳市腾讯计算机系统有限公司",
-      "shortName": "腾讯",
-      "slogan": "用户为本 科技向善",
-      "business": "腾讯是一家互联网科技公司，通过技术丰富互联网用户的生活，助力企业数字化升级。核心业务包括社交媒体、数字内容、金融科技、云计算和人工智能等，致力于打造全方位的互联网生态系统。",
-      "description": "腾讯于1998年11月由马化腾、张志东、许晨晔、陈一丹、曾李青共同创立，总部位于广东省深圳市南山区。作为中国领先的互联网公司，腾讯通过旗下产品如腾讯网、腾讯视频等，提供新闻信息、在线视频、社交媒体等服务。公司以“用户为本 科技向善”为使命，积极布局人工智能、数据中心等前沿科技领域，如腾讯觅影发布影像云和腾讯长三角人工智能超算中心。腾讯控股在香港联交所上市，股票代码00700，业务覆盖全球，持续推动数字化创新和产业升级。",
-      "industry": "互联网科技",
-      "founded": "1998年11月",
-      "headquarters": "广东省深圳市南山区",
+      "name": "许昌市胖东来商贸集团有限公司",
+      "shortName": "胖东来",
+      "slogan": "文明经商、信誉至上",
+      "business": "胖东来是一家区域性综合零售企业，核心业务涵盖连锁超市、百货商场、服饰鞋业等零售业态。作为河南省知名的零售企业，其门店主要分布在许昌和新乡两地，提供日常生活用品、食品、服装、电器等多元化商品，致力于为消费者提供高品质的商品和服务。",
+      "description": "胖东来（全称“许昌市胖东来商贸集团有限公司”）是中国河南省的一家知名连锁零售企业，由创始人于东来于1995年3月在河南许昌创立，前身为“望月楼胖子店”，初期为40余平方米的杂货铺。经过多年发展，胖东来已成为区域性零售标杆企业，以独特的经营理念和高品质服务著称，被誉为中国零售业的标杆。企业总部位于许昌市，业务涵盖超市、百货、服饰鞋业等综合零售业态，在许昌和新乡两地共有13家门店，包括5家综合型百货商场、7家中型社区超市和1家服饰鞋业类专业门店。胖东来坚持文明经商、信誉至上的经营方针，注重员工福利和顾客体验，形成了良好的企业文化和市场声誉。2025年2月，创始人于东来宣布年后退休，转为顾问，以推动企业科学先进的发展模式。",
+      "industry": "零售业",
+      "founded": "1995年3月",
+      "headquarters": "河南省许昌市",
       "services": [
         {
-          "name": "腾讯网",
-          "description": "互联网媒体平台，提供新闻、科技、财经、娱乐、体育等多频道内容，满足用户信息需求。"
+          "name": "连锁超市",
+          "description": "提供日常生活用品、食品等商品的零售服务，门店主要分布在许昌和新乡，包括中型社区超市。"
         },
         {
-          "name": "腾讯视频",
-          "description": "在线视频媒体平台，提供海量高清视频内容，包括电影、综艺等，支持VIP会员增值服务。"
+          "name": "百货商场",
+          "description": "经营综合型百货商场，涵盖服装、电器、家居等多种商品，满足消费者一站式购物需求。"
         },
         {
-          "name": "腾讯觅影",
-          "description": "人工智能医疗影像平台，发布影像云并设立开放实验室，批量孵化AI应用，助力医疗行业数字化。"
+          "name": "服饰鞋业",
+          "description": "专业销售服装和鞋类产品，设有专门的服饰鞋业门店，提供多样化的时尚选择。"
         }
       ],
       "features": [
-        "技术驱动创新",
-        "多元化互联网服务",
-        "全球化业务布局"
+        "独特的经营理念和高品质服务",
+        "区域性零售标杆企业",
+        "注重员工福利和顾客体验"
       ],
       "contact": {
-        "phone": "400-670-0700",
-        "email": "contact@tencent.com",
-        "address": "深圳市南山区科技园"
+        "phone": "0374-12345678",
+        "email": "contact@pangdonglai.com",
+        "address": "河南省许昌市魏都区某街道123号"
       },
       "social": {
-        "website": "https://www.tencent.com/zh-cn/index.html",
-        "weibo": "https://weibo.com/tencent",
-        "wechat": "腾讯官方"
+        "website": "https://web.azpdl.cn/",
+        "weibo": "https://weibo.com/pangdonglai",
+        "wechat": "胖东来官方"
       }
     },
     "deployTarget": "qiniu",
-    "previewUrl": "http://192.168.1.51:3000/preview/深圳市腾讯计算机系统有限公司-3fd9c6f7/",
-    "indexUrl": "cdn2.xdbin.com/company-websites/%E6%B7%B1%E5%9C%B3%E5%B8%82%E8%85%BE%E8%AE%AF%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8-3fd9c6f7/index.html?e=1802510101&token=8Q3jrgKS68CF4pRz6OKPUd9aXT60J2jXVQkMQCW0:6ewjiJk-W17CGBgH8ic0CqoicFc=",
-    "qiniuDir": "深圳市腾讯计算机系统有限公司-3fd9c6f7",
-    "createdAt": "2026-02-13T09:15:01.967Z",
-    "updatedAt": "2026-02-13T09:15:01.967Z"
+    "previewUrl": "http://192.168.0.109:3000/preview/company-websites/许昌市胖东来商贸集团有限公司-46153547/",
+    "indexUrl": "http://cdn2.xdbin.com/company-websites/%E8%AE%B8%E6%98%8C%E5%B8%82%E8%83%96%E4%B8%9C%E6%9D%A5%E5%95%86%E8%B4%B8%E9%9B%86%E5%9B%A2%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8-46153547/index.html?e=1802565560&token=8Q3jrgKS68CF4pRz6OKPUd9aXT60J2jXVQkMQCW0:tOY4itZGEu8RvP2VqmO_3qseBcY=",
+    "qiniuDir": "许昌市胖东来商贸集团有限公司-46153547",
+    "createdAt": "2026-02-14T00:39:20.314Z",
+    "updatedAt": "2026-02-14T00:39:20.314Z"
   },
   {
     "id": "1770973553428",
